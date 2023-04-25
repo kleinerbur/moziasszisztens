@@ -1,7 +1,9 @@
 import logo from './logo.svg';
 import './App.css';
+import Assistant from './Assistant';
 
 function App() {
+  let assistant = new Assistant()
   return (
     <div className="App">
       <header className="App-header">
