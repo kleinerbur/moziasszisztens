@@ -1,13 +1,15 @@
 class Showing {
-    constructor(title, date, startTime,  ticketURL, cinema, room, dubSubCode, visualEffect) {
+    constructor(title, startTime,  bookingLink, cinema, auditorium, isSubbed, isDubbed, is3d, isVIP, isDolbyAtmos) {
         this.title        = title;
-        this.date         = date;
         this.startTime    = startTime;
-        this.ticketURL    = ticketURL;
+        this.bookingLink  = bookingLink;
         this.cinema       = cinema;
-        this.room         = room;
-        this.dubSubCode   = dubSubCode;
-        this.visualEffect = visualEffect;
+        this.auditorium   = auditorium;
+        this.isSubbed     = isSubbed;
+        this.isDubbed     = isDubbed;
+        this.is3d         = is3d;
+        this.isVIP        = isVIP;
+        this.isDolbyAtmos = isDolbyAtmos;
     }
 
     inspect = function(depth, opts) {

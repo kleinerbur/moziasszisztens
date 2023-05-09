@@ -1,5 +1,14 @@
-import Showing from "./common/Showing";
+import ArtMozi from "./ArtMozi";
 
-class Corvin {};
+class Corvin extends ArtMozi{
+    constructor() {
+        super();
+        this.baseURL  = 'https://corvinmozi.hu/api/schedule/week';
+        this.theatres = {
+            '1447': 'Corvin'
+        };
+        this.showings = [];
+    }
+};
 
 export default Corvin;

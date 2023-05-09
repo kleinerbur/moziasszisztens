@@ -2,7 +2,7 @@ import Showing from './common/Showing';
 
 class ArtMozi {
     constructor() {
-        this.baseURL  = 'https://artmozi.hu/api/schedule/week/';
+        this.baseURL  = 'https://artmozi.hu/api/schedule/week';
         this.theatres = {
             '1448': 'Puskin',
             '1449': 'Toldi',
@@ -13,35 +13,34 @@ class ArtMozi {
         this.showings = [];
     }
 
-    async pull(year, week) {
-        const url = this.baseURL + year + week;
-        const response = await fetch(url);
-        const data = await response.json();
-        for (const [rawDate, films] of Object.entries(data['schedule'])) {
-            const formattedDate = rawDate.substring(0,4) + "/" + rawDate.substring(4,6) + "/" + rawDate.substring(6);
-            const date = Date.parse(formattedDate);
-            for (const [filmId, schedule] of Object.entries(films)) {
-                for (const [startTime, showingId] of Object.entries(schedule)) {
-                    const showing = Object.values(showingId)[0];
-                    let parsedShowing = new Showing(
-                        data['movies'][filmId]['title'],
-                        date,
-                        startTime,
-                        showing['link'],
-                        this.theatres[showing['cinema']],
-                        showing['cinema_room'],
-                        showing['dubSubCode'],
-                        showing['visualEffect']
-                    );
-                    console.log(parsedShowing);
-                    this.showings.push(parsedShowing);
-                }
+    async pull(date) {
+        let response = await fetch(this.baseURL);
+        let json     = await response.json();
+        const week   = json['weeks'][0];
+        const inputDate = date.toISOString().split('T')[0].split('-').join('');
+
+        response = await fetch(this.baseURL + '/' + week);
+        json     = await response.json();
+        for (const [filmId, schedule] of Object.entries(json['schedule'][inputDate])) {
+            for (const [startTime, showingId] of Object.entries(schedule)) {
+                let dateAndTime = new Date(date);
+                let [h,m] = startTime.split(':');
+                dateAndTime.setHours(+h, +m);
+                const showing = Object.values(showingId)[0];
+                this.showings.push(new Showing(
+                    json['movies'][filmId]['title'],        // title
+                    dateAndTime,                            // startTime
+                    showing['link'],                        // bookingLink
+                    this.theatres[showing['cinema']],       // cinema
+                    showing['cinema_room'],                 // auditorium
+                    ['f', 'ovsub', 'oveng', 'hunengsub'].includes(showing['dubSubCode']), // isSubbed
+                    ['mb', 'sz'].includes(showing['dubSubCode']), // isDubbed
+                    showing['visualEffect'].includes('3d'), // is3d
+                    false,                                  // isVIP
+                    false                                   // isDolbyAtmos
+                ));
             }
         }
-        return this;
-    }
-
-    getShowings() {
         return this.showings;
     }
 }
