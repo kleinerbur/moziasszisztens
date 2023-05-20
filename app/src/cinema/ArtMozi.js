@@ -25,19 +25,21 @@ class ArtMozi {
             for (const [startTime, showingId] of Object.entries(schedule)) {
                 let dateAndTime = new Date(date);
                 let [h,m] = startTime.split(':');
-                dateAndTime.setHours(+h, +m);
+                dateAndTime.setHours(+h, +m, 0);
                 const showing = Object.values(showingId)[0];
                 this.showings.push(new Showing(
-                    json['movies'][filmId]['title'],        // title
-                    dateAndTime,                            // startTime
-                    showing['link'],                        // bookingLink
-                    this.theatres[showing['cinema']],       // cinema
-                    showing['cinema_room'],                 // auditorium
-                    ['f', 'ovsub', 'oveng', 'hunengsub'].includes(showing['dubSubCode']), // isSubbed
-                    ['mb', 'sz'].includes(showing['dubSubCode']), // isDubbed
-                    showing['visualEffect'].includes('3d'), // is3d
-                    false,                                  // isVIP
-                    false                                   // isDolbyAtmos
+                    json['movies'][filmId]['title'].trim().replace('…','...'), // title
+                    dateAndTime,                                               // startTime
+                    showing['link'],                                           // bookingLink
+                    this.theatres[showing['cinema']],                          // cinema
+                    showing['cinema_room'],                                    // auditorium
+                    ['f', 'ovsub', 'oveng', 'hunengsub', 'Hun and Eng sub']
+                    .includes(showing['dubSubCode']),                          // isSubbed
+                    ['mb', 'sz']
+                    .includes(showing['dubSubCode']),                          // isDubbed
+                    showing['visualEffect'].includes('3d'),                    // is3d
+                    false,                                                     // isVIP
+                    false                                                      // isDolbyAtmos
                 ));
             }
         }

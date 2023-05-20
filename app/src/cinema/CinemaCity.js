@@ -9,6 +9,7 @@ class CinemaCity {
     async pull(date) {
         var url = this.baseURL + 'cinemas/with-event/until/' + date.toISOString().slice(0, 10);
         var response = await fetch(url);
+        console.log(response);
         var data = await response.json();
         var cinemas = {};
         Object.values(data['body']['cinemas']).forEach(
@@ -21,34 +22,37 @@ class CinemaCity {
             }, {});
 
         const promises = Object.keys(cinemas).map(cinemaId =>
-            fetch(this.baseURL + 'film-events/in-cinema/' + cinemaId + '/at-date/' + date.toISOString().slice(0, 10))
+            fetch(this.baseURL
+                + 'film-events/in-cinema/' + cinemaId
+                + '/at-date/' + date.toISOString().slice(0, 10))
             .then(response => response.json())
         );
         const responses = await Promise.all(promises);
-        responses.map(response => {
+        for (const response of responses) {
             const films  = response['body']['films'];
             const events = response['body']['events'];
-            events.map(event => {
+            for (const event of events) {
                 const film = films.filter(film => film.id === event['filmId'])[0];
                 let [h,m,s] = event['eventDateTime'].split('T')[1].split(':')
                 let dateAndTime = new Date(date);
                 dateAndTime.setHours(+h, +m, +s);
                 this.showings.push(
                     new Showing(
-                        film['name'],                                 // title
-                        dateAndTime,     // startTime
+                        film['name'].trim().replace('…','...'),       // title
+                        dateAndTime,                                  // startTime
                         event['bookingLink'],                         // bookingLink
                         cinemas[event['cinemaId']]['displayName'],    // cinema
                         event['auditorium'],                          // auditorium
                         event['attributeIds'].includes('subbed'),     // isSubbed
+                        event['attributeIds'].includes('original-lang-hu') ||
                         event['attributeIds'].includes('dubbed'),     // isDubbed
                         event['attributeIds'].includes('3d'),         // is3d
                         event['attributeIds'].includes('vip'),        // isVIP
                         event['attributeIds'].includes('dolby-atmos') // isDolbyAtmos
                     )
                 );
-            })
-        });
+            }
+        }
         return this.showings;
     }
 }

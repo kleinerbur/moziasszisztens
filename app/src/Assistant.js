@@ -4,11 +4,12 @@ import CinemaCity from "./cinema/CinemaCity";
 
 class Assistant {
     constructor() {
+        this.films = [];
+        this.showings = [];
         this.currentDate = new Date();
         this.artmozi = new ArtMozi();
         this.corvin  = new Corvin();
         this.cinemacity = new CinemaCity();
-        this.pull(this.currentDate);
     }
 
     async pull(date) {
@@ -16,12 +17,16 @@ class Assistant {
             this.artmozi.pull(date),
             this.corvin.pull(date),
             this.cinemacity.pull(date)
-        ])).sort((a,b) =>
-               a.title.localeCompare(b.title)
-            || new Date(a.startTime) - new Date(b.startTime)
-            || a.cinema.localeCompare(b.cinema));
-        console.log(this.showings);
+        ])).sort((a,b) => a.title.localeCompare(b.title)
+                       || new Date(a.startTime) - new Date(b.startTime)
+                       || a.cinema.localeCompare(b.cinema));
+        this.films =
+            [...new Set(
+                this.showings
+                    .filter(showing => showing !== null)
+                    .map(showing => showing.title)
+            )].sort((a,b) => a.localeCompare(b));
     }
 }
 
-export default Assistant
+export default Assistant;
